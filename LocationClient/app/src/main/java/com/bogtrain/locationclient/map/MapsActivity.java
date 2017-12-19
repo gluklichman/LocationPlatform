@@ -1,4 +1,4 @@
-package com.bogtrain.locationclient.locationclient;
+package com.bogtrain.locationclient.map;
 
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
