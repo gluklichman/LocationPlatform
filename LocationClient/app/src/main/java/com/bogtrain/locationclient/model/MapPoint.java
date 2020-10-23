@@ -14,7 +14,7 @@ public class MapPoint {
     public MapPoint(LatLng pos, String title, String description) {
         this.position = pos;
         this.title = title;
-        this.description = title;
+        this.description = description;
     }
 
     public LatLng getPosition() {

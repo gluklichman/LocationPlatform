@@ -1,7 +1,9 @@
 package com.bogtrain.locationclient.map;
 
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.bogtrain.locationclient.model.MapPoint;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -10,11 +12,12 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, MapContract.View {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, MapContract.View, GoogleMap.OnMarkerClickListener {
 
-    private GoogleMap mMap;
+    private GoogleMap mMap = null;
 
     private MapPresenter presenter = null;
 
@@ -28,6 +31,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         presenter = new MapPresenter(this);
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        mMap.setOnMarkerClickListener(null);
+        super.onDestroy();
     }
 
 
@@ -44,11 +54,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        LatLng home = new LatLng(53.864210, 27.480421);
-        LatLng work = new LatLng(53.905476, 27.520593);
-
-        mMap.addMarker(new MarkerOptions().position(home).title("Home marker").snippet("test snippet"));
-        mMap.addMarker(new MarkerOptions().position(work).title("Work marker").snippet("another snippet"));
+        mMap.setOnMarkerClickListener(this);
 
         UiSettings mapUISettings = mMap.getUiSettings();
         mapUISettings.setCompassEnabled(true);
@@ -56,11 +62,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapUISettings.setMyLocationButtonEnabled(true);
         mapUISettings.setZoomControlsEnabled(true);
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(home));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(53.864210, 27.480421)));
     }
 
     @Override
     public void UpdateMapPoints(MapPoint[] points) {
-        //TODO; implement
+        if (IsMapReady()) {
+            mMap.clear();
+            for (MapPoint point : points) {
+                LatLng pointMarker = point.getPosition();
+                Marker newMarker = mMap.addMarker(new MarkerOptions().position(pointMarker));
+                newMarker.setTag(point);
+            }
+        }
+    }
+
+    public boolean IsMapReady() {
+        return mMap != null;
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        if (marker.getTag() == null)
+        {
+            return false;
+        }
+
+        MapPoint point = (MapPoint)marker.getTag();
+        if (point == null)
+        {
+            return false;
+        }
+        Log.v("MarkerClick", point.getTitle() + " " + point.getDescription());
+        return false;
     }
 }

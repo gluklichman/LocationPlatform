@@ -1,5 +1,7 @@
 package com.bogtrain.locationclient.map;
 
+import android.os.Handler;
+
 import com.bogtrain.locationclient.model.MapPoint;
 
 /**
